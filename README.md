@@ -14,14 +14,16 @@ Installation:
 
 3. Unzip the deps folder in the solution directory
 
-4. In VC++ Directories, add the following paths:
+4. Go to Project -> 'solution_name' Properties (at the bottom). Make sure that Platform is targeting x64 and configuration is in Debug mode.
+
+5. In VC++ Directories, add the following paths:
 
 $(SolutionDir)deps/include
 
 $(SolutionDir)
 
-5. In Linker, add the following to 'Additional Library Directories':
+6. In Linker, add the following to 'Additional Library Directories':
 
 $(SolutionDir)deps/lib
 
-6. Go back to the main VS interface. With that done, you should be able to click "Local Windows Debugger" and get some code on the screen.
+7. Go back to the main VS interface. With that done, you should be able to click "Local Windows Debugger" and get some code on the screen.
