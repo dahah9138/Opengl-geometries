@@ -9,8 +9,8 @@
 void Sphere::init(const int &amount, const glm::mat4 &modelMatrices, bool inst) {
 	_instanced = inst;
 	bool condition = false;
-	const int rs = _root_size * _root_size + 1;
-	const int is = _root_size * (_root_size - 1) * 6 + _root_size * 3; // (_root_size - 1) rows + (_root_size) last row
+	const int rs = _root_size * _root_size + 2;
+	const int is = _root_size * (_root_size - 1) * 6 + _root_size * 6; // (_root_size - 1) rows + (_root_size) last row
 
 	_mesh = new Mesh;
 
@@ -28,10 +28,11 @@ void Sphere::init(const int &amount, const glm::mat4 &modelMatrices, bool inst) 
 	float dlon = M_PI / _root_size;
 
 	
+	float lonTemp = -(float)dlon/2.0f;
 
 	for (int i = 0; i < _root_size; i++) { // size - 1 because the edges are connected
 		// Get the longitude coordinate for i
-		float lonTemp = (i) * dlon;
+		lonTemp += dlon;
 		float Rsintheta = _R * sin(lonTemp);
 		for (int j = 0; j < _root_size; j++) {
 			// Get the latitude coordinate for j
@@ -39,6 +40,17 @@ void Sphere::init(const int &amount, const glm::mat4 &modelMatrices, bool inst) 
 
 
 			// Need to initialize the indices as well
+
+			if (i == 0 && j + 1 == _root_size) {
+				_mesh->indices.emplace_back(0);
+				_mesh->indices.emplace_back(_root_size);
+				_mesh->indices.emplace_back(1);
+			}
+			else if (i == 0) { // Connect this layer to the final vertex
+				_mesh->indices.emplace_back(0);
+				_mesh->indices.emplace_back(j+1);
+				_mesh->indices.emplace_back(j+2);
+			}
 
 			if (i + 1 == _root_size && j + 1 == _root_size) {
 				_mesh->indices.emplace_back(convert_ij_to_index(i, j));
@@ -72,7 +84,7 @@ void Sphere::init(const int &amount, const glm::mat4 &modelMatrices, bool inst) 
 			Vertex tempVert;
 			
 			//else {
-				tempVert.Position = _center + glm::vec3(Rsintheta * cos(latTemp), Rsintheta * sin(latTemp), _R * cos(lonTemp));
+				
 			//}
 				// Get some funky colors
 			if ((i^j) % 2 == 0) {
@@ -86,10 +98,19 @@ void Sphere::init(const int &amount, const glm::mat4 &modelMatrices, bool inst) 
 			else {
 				tempVert.Color = glm::vec3(1.0f, 1.0f, 0.0f);
 			}
-			
+
+
+			if (i ==0 && j == 0) {
+				tempVert.Position = _center + glm::vec3(0.0f, 0.0f, _R); // Only need one vertex here
+				tempVert.Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+				_mesh->vertices.emplace_back(tempVert);
+			}
+
+			tempVert.Position = _center + glm::vec3(Rsintheta * cos(latTemp), Rsintheta * sin(latTemp), _R * cos(lonTemp));
 			tempVert.Normal = tempVert.Position - _center;
 			tempVert.Normal = glm::normalize(tempVert.Normal);
 			_mesh->vertices.emplace_back(tempVert);
+
 			if (i == _root_size - 1 && j == _root_size - 1) {
 				tempVert.Position = _center + glm::vec3(0.0f, 0.0f, -_R); // Only need one vertex here
 				tempVert.Normal = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -97,7 +118,7 @@ void Sphere::init(const int &amount, const glm::mat4 &modelMatrices, bool inst) 
 			}
 		}
 	}
-	
+
 	if (_instanced) {
 		_instanceAmount = amount;
 		_mesh->useInstancing();
@@ -112,9 +133,10 @@ void Sphere::init(const int &amount, const glm::mat4 &modelMatrices, bool inst) 
 }
 
 int Sphere::convert_ij_to_index(int i, int j) { // i row, j column
-	return i * _root_size + j;
+	return i * _root_size + j+1;
 }
 
+// Does not support instancing
 
 void Sphere::draw(const GLSL &shader) {
 	if (_useWire) {
@@ -144,6 +166,6 @@ void Sphere::draw() {
 		else {
 			_mesh->useSolidMesh();
 		}
-		_mesh->DrawInstanced(_instanceAmount);
+		_mesh->Draw();
 	}
 }
