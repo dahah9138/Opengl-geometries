@@ -22,14 +22,11 @@ void Rectangle::init() {
 		}
 	}
 
-	// Seems like I get this to have a for loop but I have no clue
-
-	parity(0, 2, 3, vecIndices); // back
-	parity(0, 4, 5, vecIndices); // left
-	parity(0, 4, 6, vecIndices); // bottom
-	parity(1, 5, 7, vecIndices); // top
-	parity(2, 3, 7, vecIndices); // right
-	parity(4, 6, 7, vecIndices); // front
+	for (int i = 0; i < 3; i++) {
+		int powi = (int)pow(2, i);
+		parity(0, (2 * i) ^ (1 + powi), 7 ^ powi, vecIndices);
+		parity(powi, ((2 * i) ^ (1 + powi)) + powi, (7 ^ powi) + powi, vecIndices);
+	}
 
 
 
@@ -38,7 +35,11 @@ void Rectangle::init() {
 	_mesh = new Mesh(verts, vecIndices);
 }
 
-void Rectangle::draw(const GLSL &shader) {
+void Rectangle::draw(GLSL shader) {
+	if (_mesh == 0) { // Mesh has not been initialized.
+		std::cout << "Mesh not initialized!" << std::endl;
+		return;
+	}
 	if (_useWire) {
 		_mesh->useWireMesh();
 	}
@@ -46,16 +47,6 @@ void Rectangle::draw(const GLSL &shader) {
 		_mesh->useSolidMesh();
 	}
 	_mesh->Draw(shader);
-}
-
-void Rectangle::draw() {
-	if (_useWire) {
-		_mesh->useWireMesh();
-	}
-	else {
-		_mesh->useSolidMesh();
-	}
-	_mesh->Draw();
 }
 
 void Rectangle::parity(int i, int j, int k, std::vector<unsigned int> &indices) {
