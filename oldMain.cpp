@@ -1,24 +1,5 @@
-Skip to content
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@dahah9138 
-Learn Git and GitHub without any code!
-Using the Hello World guide, you’ll start a branch, write comments, and open a pull request.
-
-
-dahah9138
-/
-Opengl-geometries
-Private
-1
-00
- Code Issues 0 Pull requests 0 Actions Projects 0 Wiki Security Insights Settings
-Opengl-geometries/Main.cpp
+// Don't include this file when compiling the project
+// Outdated and used for instance testing only
   
 #include <iostream>
 #include "Window.h"
